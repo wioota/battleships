@@ -33,13 +33,13 @@ def run_locally():
     try:
         game_class = available_games[args.game_class]
     except KeyError:
-        print "The game class doesn't exist"
+        print("The game class doesn't exist")
         return
     if not os.path.isfile(args.bot_path):
-        print "The bot path doesn't exist"
+        print("The bot path doesn't exist")
         return
     if not os.access(args.bot_path, os.X_OK):
-        print "The bot isn't executable"
+        print("The bot isn't executable")
         return
 
     result = Player(game_class).play(args.bot_path, args.seed)
@@ -50,7 +50,7 @@ def run_locally():
         del result["history"]
 
     if args.r: # raw output
-        print result
+        print(result)
     else:
         pprint.pprint(result)
 

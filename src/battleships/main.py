@@ -1,4 +1,4 @@
-import httplib
+import http.client as httplib
 import logging.config
 import motor
 import os.path
@@ -7,7 +7,7 @@ import tornado.auth
 import tornado.gen
 import tornado.ioloop
 import tornado.web
-import urlparse
+import urllib.parse as urlparse
 import yaml
 from battleships.cache import CacheBotGame
 from battleships.conf import Conf
@@ -161,14 +161,16 @@ class APIBaseHandler(BaseHandler):
         # hide details of internal server errors from the client
         if not isinstance(exception, tornado.web.HTTPError):
             exception = tornado.web.HTTPError(httplib.INTERNAL_SERVER_ERROR)
-            exception.message = "Oops, an error occurred."
+            error_message = "Oops, an error occurred."
+        else:
+            error_message = getattr(exception, 'log_message', str(exception))
 
         code = getattr(exception, "custom_error_code", status_code)
         self.finish({
             "meta": {
                 "error_type":       exception.__class__.__name__,
                 "code":             code,
-                "error_message":    exception.message,
+                "error_message":    error_message,
                 }})
 
     def complete(self, status_code=httplib.OK, data=None):
@@ -220,10 +222,13 @@ class PlayersHandler(APIBaseHandler):
         bot_id = ObjectId()
         bot_file_content = self.request.files["bot_file"][0]["body"]
         bot_path = "%s/%s" % (Conf["bot-path"], str(bot_id))
-        f = open(bot_path, "w")
+        f = open(bot_path, "wb")
+        # In Python 3, request body is bytes, so write as binary
+        if isinstance(bot_file_content, str):
+            bot_file_content = bot_file_content.encode('utf-8')
         f.write(bot_file_content)
         f.close()
-        os.chmod(bot_path, 0744)
+        os.chmod(bot_path, 0o744)
 
         # Bot files uploaded from a Windows system cannot natively be executed
         # on a Linux system so run all files through this converter (from
