@@ -3,8 +3,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class Game:
-    __metaclass__ = ABCMeta
+class Game(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, seed):

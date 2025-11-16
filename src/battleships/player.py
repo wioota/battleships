@@ -72,7 +72,11 @@ class Player(object):
         signal.signal(signal.SIGALRM, alarm_handler)
         signal.alarm(self._BOT_MOVE_TIMEOUT)
         try:
-            return subprocess.check_output([bot_path, bot_request])
+            output = subprocess.check_output([bot_path, bot_request])
+            # In Python 3, subprocess.check_output returns bytes, so decode to string
+            if isinstance(output, bytes):
+                output = output.decode('utf-8').strip()
+            return output
         except (subprocess.CalledProcessError, OSError):
             traceback.print_exc() # dump stack trace to console
             raise _BotErrorException

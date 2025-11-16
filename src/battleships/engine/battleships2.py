@@ -57,7 +57,7 @@ class Grid(object):
 
     @classmethod
     def index_to_coord(cls, i):
-        y = i / cls.SIZE
+        y = i // cls.SIZE
         x = i % cls.SIZE
         return x, y
 
@@ -230,12 +230,12 @@ class BattleshipsGame(object):
     def is_complete(self):
         """Return whether all ships have been hit/sunk.
 
-        This is calculated by comparing the number of hits in the shot grid 
-        `hits_made` with the number of squares occupied by ships in the ship 
+        This is calculated by comparing the number of hits in the shot grid
+        `hits_made` with the number of squares occupied by ships in the ship
         grid `hits_to_win`.
         """
-        hits_made = len(filter(
-            lambda x: x == ShotGridSquareState.SUNK, self._shot_grid.squares))
+        hits_made = len(list(filter(
+            lambda x: x == ShotGridSquareState.SUNK, self._shot_grid.squares)))
         # index 1 of `SHIPS` is the ship size
         hits_to_win = sum(map(itemgetter(1), ShipManager.SHIPS))
         return hits_made == hits_to_win
@@ -268,7 +268,3 @@ class BattleshipsGame(object):
         # for consistency the score will remain as the move count, for now
         return len(self._shot_grid.squares) - \
             self._shot_grid.squares.count(ShotGridSquareState.UNKNOWN)
-
-
-# TODO: does this work?
-Game.register(BattleshipsGame)
